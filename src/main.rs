@@ -42,6 +42,7 @@ fn main()
 
     let mut last_time = Instant::now();
     let mut frame_count = 0;
+    let mut is_dirty = true;
 
     let mut event_pump = sdl_context.event_pump().unwrap();
     'running: loop 
@@ -56,24 +57,28 @@ fn main()
                     let height = lower_right.im - upper_left.im;
                     upper_left.im -= height * 0.1;
                     lower_right.im -= height * 0.1;
+                    is_dirty = true;
                 }
                 Event::KeyDown {keycode: Some(Keycode::Down), ..} => 
                 {
                     let height = lower_right.im - upper_left.im;
                     upper_left.im += height * 0.1;
                     lower_right.im += height * 0.1;
+                    is_dirty = true;
                 }
                 Event::KeyDown {keycode: Some(Keycode::Left), ..} => 
                 {
                     let width = lower_right.re - upper_left.re;
                     upper_left.re -= width * 0.1;
                     lower_right.re -= width * 0.1;
+                    is_dirty = true;
                 }
                 Event::KeyDown {keycode: Some(Keycode::Right), ..} => 
                 {
                     let width = lower_right.re - upper_left.re;
                     upper_left.re += width * 0.1;
                     lower_right.re += width * 0.1;
+                    is_dirty = true;
                 }
                 Event::KeyDown {keycode: Some(Keycode::A), ..} => 
                 {
@@ -83,6 +88,7 @@ fn main()
                     let height = lower_right.im - upper_left.im;
                     upper_left.im -= height * 0.1;
                     lower_right.im += height * 0.1;
+                    is_dirty = true;
                 }
                 Event::KeyDown {keycode: Some(Keycode::S), ..} => 
                 {
@@ -92,6 +98,7 @@ fn main()
                     let height = lower_right.im - upper_left.im;
                     upper_left.im += height * 0.1;
                     lower_right.im -= height * 0.1;
+                    is_dirty = true;
                 }
                 _ => {}
             }
@@ -101,6 +108,7 @@ fn main()
         // ----------------------------------------------
         // マンデルブロ集合の計算処理
         // ----------------------------------------------
+        if is_dirty
         {
             let bands: Vec<&mut [u8]> = pixels.chunks_mut(rows_per_band * window_pixel_sizes.0).collect();
             crossbeam::scope(|spawner|
@@ -118,6 +126,7 @@ fn main()
                     });
                 }
             }).unwrap();
+            is_dirty = false;
         }
 
         // ----------------------------------------------
